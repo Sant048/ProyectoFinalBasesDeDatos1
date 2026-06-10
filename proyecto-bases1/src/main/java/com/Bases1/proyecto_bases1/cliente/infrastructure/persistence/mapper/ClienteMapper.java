@@ -1,12 +1,15 @@
 package com.Bases1.proyecto_bases1.cliente.infrastructure.persistence.mapper;
 
+
 import com.Bases1.proyecto_bases1.cliente.domain.model.Cliente;
 import com.Bases1.proyecto_bases1.cliente.infrastructure.persistence.entity.ClienteEntity;
 
 public class ClienteMapper {
 
-    public static Cliente toDomain(
-            ClienteEntity entity){
+    private ClienteMapper() {
+    }
+
+    public static Cliente toDomain(ClienteEntity entity) {
 
         return new Cliente(
                 entity.getIdCliente(),
@@ -21,8 +24,7 @@ public class ClienteMapper {
         );
     }
 
-    public static ClienteEntity toEntity(
-            Cliente cliente){
+    public static ClienteEntity toEntity(Cliente cliente) {
 
         return ClienteEntity.builder()
                 .idCliente(cliente.getIdCliente())

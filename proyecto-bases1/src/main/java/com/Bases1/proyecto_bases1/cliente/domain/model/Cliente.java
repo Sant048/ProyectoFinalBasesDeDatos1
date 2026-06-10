@@ -1,4 +1,6 @@
 package com.Bases1.proyecto_bases1.cliente.domain.model;
+
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -6,27 +8,27 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@Builder
 public class Cliente {
 
-    private Integer idCliente;
+    private Long idCliente;
     private String nombres;
     private String apellidos;
     private String numeroDocumento;
-    private Integer idTipoDocumento;
+    private Long idTipoDocumento;
     private String telefono;
     private String correo;
     private String direccion;
     private LocalDate fechaRegistro;
 
-    public Cliente() {
-    }
+    public Cliente() {}
 
     public Cliente(
-            Integer idCliente,
+            Long idCliente,
             String nombres,
             String apellidos,
             String numeroDocumento,
-            Integer idTipoDocumento,
+            Long idTipoDocumento,
             String telefono,
             String correo,
             String direccion,
@@ -43,4 +45,5 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
+    // getters y setters
 }

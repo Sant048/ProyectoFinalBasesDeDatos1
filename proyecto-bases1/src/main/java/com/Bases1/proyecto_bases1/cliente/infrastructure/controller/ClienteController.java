@@ -1,57 +1,75 @@
 package com.Bases1.proyecto_bases1.cliente.infrastructure.controller;
+
+import com.Bases1.proyecto_bases1.cliente.application.dto.ClienteActividadResponse;
+import com.Bases1.proyecto_bases1.cliente.application.dto.ClienteDocumentoResponse;
+import com.Bases1.proyecto_bases1.cliente.application.dto.ClienteVehiculosResponse;
+import com.Bases1.proyecto_bases1.cliente.application.dto.CrearClienteRequest;
 import com.Bases1.proyecto_bases1.cliente.application.service.ClienteService;
 import com.Bases1.proyecto_bases1.cliente.domain.model.Cliente;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/clientes")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class ClienteController {
 
     private final ClienteService service;
 
-    public ClienteController(ClienteService service) {
-        this.service = service;
-    }
-
+    /**
+     * Endpoint requerido por el frontend
+     * GET /api/clientes
+     */
     @GetMapping
-    public List<Cliente> listar() {
-        return service.listar();
+    public List<ClienteDocumentoResponse> listar() {
+        return service.listarClientes();
     }
 
-    @GetMapping("/{id}")
-    public Cliente obtener(@PathVariable Long id) {
-        return service.obtener(id);
-    }
-
+    /**
+     * Endpoint requerido por el frontend
+     * POST /api/clientes
+     */
     @PostMapping
-    public Cliente crear(@RequestBody Cliente cliente) {
-        return service.crear(cliente);
+    public Cliente crear(
+            @RequestBody CrearClienteRequest request) {
+
+        return service.guardar(request);
     }
 
-    @PutMapping("/{id}")
-    public Cliente actualizar(
-            @PathVariable Long id,
-            @RequestBody Cliente cliente) {
+    /**
+     * Consulta SQL #2
+     */
+    @GetMapping("/documento/{numero}")
+    public ClienteDocumentoResponse buscarPorDocumento(
+            @PathVariable String numero) {
 
-        return service.actualizar(id, cliente);
+        return service.buscarPorDocumento(numero);
     }
 
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        service.eliminar(id);
+    /**
+     * Consulta SQL #3
+     */
+    @GetMapping("/con-vehiculos")
+    public List<ClienteVehiculosResponse> conVehiculos() {
+        return service.clientesConVehiculos();
     }
 
-    // CONSULTAS DEL PROYECTO
-
-    @GetMapping("/sin-vehiculo")
-    public List<Cliente> clientesSinVehiculo() {
-        return service.obtenerClientesSinVehiculo();
+    /**
+     * Consulta SQL #4
+     */
+    @GetMapping("/sin-vehiculos")
+    public List<ClienteVehiculosResponse> sinVehiculos() {
+        return service.clientesSinVehiculos();
     }
 
-    @GetMapping("/mas-activo")
-    public Cliente clienteMasActivo() {
-        return service.obtenerClienteMasActivo();
+    /**
+     * Consulta SQL #5
+     */
+    @GetMapping("/top-cliente")
+    public ClienteActividadResponse topCliente() {
+        return service.clienteConMasVehiculos();
     }
 }

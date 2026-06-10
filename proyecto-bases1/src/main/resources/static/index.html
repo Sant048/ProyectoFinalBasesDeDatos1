@@ -717,7 +717,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
           <div class="form-grid">
             <div class="field">
               <label>ID Cliente *</label>
-              <input type="number" id="v-cliente" placeholder="1">
+              <input type="number" id="v-cliente" placeholder="1" min="1">
             </div>
             <div class="field">
               <label>Placa *</label>
@@ -748,7 +748,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
             </div>
             <div class="field">
               <label>Cilindraje (cc) *</label>
-              <input type="number" id="v-cilindraje" placeholder="1600">
+              <input type="number" id="v-cilindraje" placeholder="1600" min="1">
             </div>
             <div class="field">
               <label>Combustible *</label>
@@ -760,7 +760,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
             </div>
             <div class="field">
               <label>Kilometraje Actual *</label>
-              <input type="number" id="v-km" placeholder="50000">
+              <input type="number" id="v-km" placeholder="50000" min="0">
             </div>
           </div>
           <div style="margin-top:16px;display:flex;gap:10px">
@@ -856,8 +856,8 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
         </div>
         <div class="panel-body" id="formOrden" style="display:none">
           <div class="form-grid">
-            <div class="field"><label>ID Vehículo *</label><input type="number" id="o-vehiculo" placeholder="1"></div>
-            <div class="field"><label>ID Mecánico *</label><input type="number" id="o-mecanico" placeholder="1"></div>
+            <div class="field"><label>ID Vehículo *</label><input type="number" id="o-vehiculo" placeholder="1" min="1"></div>
+            <div class="field"><label>ID Mecánico *</label><input type="number" id="o-mecanico" placeholder="1" min="1"></div>
             <div class="field"><label>Fecha Ingreso *</label><input type="date" id="o-finicio"></div>
             <div class="field"><label>Fecha Estimada Entrega *</label><input type="date" id="o-festimada"></div>
             <div class="field">
@@ -914,7 +914,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
         </div>
         <div class="panel-body" id="formRepuesto" style="display:none">
           <div class="form-grid">
-            <div class="field"><label>ID Proveedor *</label><input type="number" id="r-proveedor" placeholder="1"></div>
+            <div class="field"><label>ID Proveedor *</label><input type="number" id="r-proveedor" placeholder="1" min="1"></div>
             <div class="field"><label>Nombre *</label><input type="text" id="r-nombre" placeholder="Filtro de Aceite"></div>
             <div class="field"><label>Referencia *</label><input type="text" id="r-ref" placeholder="REF011"></div>
             <div class="field">
@@ -925,9 +925,9 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
                 <option value="5">SKF</option><option value="6">NGK</option>
               </select>
             </div>
-            <div class="field"><label>Precio Unitario *</label><input type="number" id="r-precio" placeholder="25000"></div>
-            <div class="field"><label>Stock Actual *</label><input type="number" id="r-stock" placeholder="50"></div>
-            <div class="field"><label>Stock Mínimo *</label><input type="number" id="r-minimo" placeholder="10"></div>
+            <div class="field"><label>Precio Unitario *</label><input type="number" id="r-precio" placeholder="25000" min="1"></div>
+            <div class="field"><label>Stock Actual *</label><input type="number" id="r-stock" placeholder="50" min="0"></div>
+            <div class="field"><label>Stock Mínimo *</label><input type="number" id="r-minimo" placeholder="10" min="0"></div>
           </div>
           <div style="margin-top:16px;display:flex;gap:10px">
             <button class="btn btn-primary" onclick="crearRepuesto()">💾 Guardar Repuesto</button>
@@ -1044,12 +1044,60 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 
     <!-- CONSULTAS SQL -->
     <section id="s-consultas" class="section">
-      <div class="panel">
-        <div class="panel-header"><span class="panel-title">📋 Consultas SQL del Sistema</span></div>
+
+      <!-- HISTORIAL DE VEHÍCULO -->
+      <div class="panel" style="margin-bottom:24px">
+        <div class="panel-header"><span class="panel-title">🔍 Consultar Historial de Vehículo por Placa</span></div>
         <div class="panel-body">
-          <p style="color:var(--muted);font-size:13px;margin-bottom:20px">
-            Estas consultas son ejecutadas por el backend (Spring Boot + JPA) para generar los datos del sistema.
+          <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+            <input type="text" id="histPlaca" placeholder="Ej: AAA101" style="max-width:200px;text-transform:uppercase">
+            <button class="btn btn-primary" onclick="buscarHistorialPlaca()">🔎 Buscar</button>
+          </div>
+          <div id="historialResult" style="display:none">
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Placa</th><th>Propietario</th><th>Orden</th><th>F. Ingreso</th>
+                  <th>F. Entrega</th><th>Estado</th><th>Tipo</th><th>Ítem</th>
+                  <th>Cant.</th><th>Precio</th><th>Subtotal</th>
+                </tr></thead>
+                <tbody id="tbHistorial"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETALLE DE ORDEN -->
+      <div class="panel" style="margin-bottom:24px">
+        <div class="panel-header"><span class="panel-title">📄 Consultar Detalle de Orden</span></div>
+        <div class="panel-body">
+          <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+            <input type="number" id="detalleOrdenId" placeholder="ID de la orden (ej: 1)" min="1" style="max-width:200px">
+            <button class="btn btn-primary" onclick="buscarDetalleOrden()">🔎 Ver Detalle</button>
+          </div>
+          <div id="detalleOrdenResult" style="display:none">
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Orden</th><th>Placa</th><th>Tipo</th><th>Ítem</th>
+                  <th>Cantidad</th><th>Precio</th><th>Subtotal</th><th>Observación</th>
+                </tr></thead>
+                <tbody id="tbDetalleOrden"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTA DE CONSULTAS -->
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">📋 Consultas SQL del Sistema (30 consultas)</span></div>
+        <div class="panel-body">
+          <p style="color:var(--muted);font-size:13px;margin-bottom:16px">
+            Consultas SQL organizadas por módulo. Filtrar por categoría:
           </p>
+          <div id="sqlFilterBar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px"></div>
           <div id="sqlList"></div>
         </div>
       </div>
@@ -1066,93 +1114,6 @@ const BASE = 'http://localhost:8080/api';
 
 // ─── DATOS SIMULADOS (para demo sin backend) ──────────────
 const DEMO = {
-  resumen: { totalClientes:10, totalVehiculos:10, mecanicosActivos:10, ordenesActivas:0, ingrésosTotales:2260000, repuestosCriticos:0 },
-
-  clientes: [
-    {idCliente:1, nombres:'Juan', apellidos:'Pérez', tipoDocumento:'CC', numeroDocumento:'100000001', telefono:'3001111111', correo:'juan1@gmail.com', fechaRegistro:'2025-01-01'},
-    {idCliente:2, nombres:'Carlos', apellidos:'Gómez', tipoDocumento:'CC', numeroDocumento:'100000002', telefono:'3001111112', correo:'juan2@gmail.com', fechaRegistro:'2025-01-01'},
-    {idCliente:3, nombres:'María', apellidos:'Rodríguez', tipoDocumento:'CC', numeroDocumento:'100000003', telefono:'3001111113', correo:'juan3@gmail.com', fechaRegistro:'2025-01-01'},
-    {idCliente:4, nombres:'Ana', apellidos:'Martínez', tipoDocumento:'CC', numeroDocumento:'100000004', telefono:'3001111114', correo:'juan4@gmail.com', fechaRegistro:'2025-01-01'},
-    {idCliente:5, nombres:'Luis', apellidos:'López', tipoDocumento:'CC', numeroDocumento:'100000005', telefono:'3001111115', correo:'juan5@gmail.com', fechaRegistro:'2025-01-01'},
-  ],
-
-  vehiculos: [
-    {placa:'AAA101', propietario:'Juan Pérez', marca:'Toyota', modelo:'Corolla', color:'Blanco', cilindraje:1600, combustible:'Gasolina', kilometrajeActual:50000},
-    {placa:'AAA102', propietario:'Carlos Gómez', marca:'Chevrolet', modelo:'Onix', color:'Negro', cilindraje:1400, combustible:'Gasolina', kilometrajeActual:60000},
-    {placa:'AAA103', propietario:'María Rodríguez', marca:'Renault', modelo:'Logan', color:'Rojo', cilindraje:1600, combustible:'Gasolina', kilometrajeActual:70000},
-    {placa:'AAA104', propietario:'Ana Martínez', marca:'Mazda', modelo:'Mazda 3', color:'Azul', cilindraje:2000, combustible:'Gasolina', kilometrajeActual:40000},
-    {placa:'AAA105', propietario:'Luis López', marca:'Kia', modelo:'Rio', color:'Gris', cilindraje:1400, combustible:'Gasolina', kilometrajeActual:30000},
-  ],
-
-  mecanicos: [
-    {idMecanico:1, nombres:'Mario', apellidos:'Rojas', tipoDocumento:'CC', numeroDocumento:'200000001', especialidad:'Motor', telefono:'3100000001', fechaIngreso:'2022-01-10', estado:'Activo'},
-    {idMecanico:2, nombres:'Diego', apellidos:'Gil', tipoDocumento:'CC', numeroDocumento:'200000002', especialidad:'Electricidad', telefono:'3100000002', fechaIngreso:'2022-02-10', estado:'Activo'},
-    {idMecanico:3, nombres:'Jorge', apellidos:'Ruiz', tipoDocumento:'CC', numeroDocumento:'200000003', especialidad:'Suspensión', telefono:'3100000003', fechaIngreso:'2022-03-10', estado:'Activo'},
-    {idMecanico:4, nombres:'David', apellidos:'Suarez', tipoDocumento:'CC', numeroDocumento:'200000004', especialidad:'Frenos', telefono:'3100000004', fechaIngreso:'2022-04-10', estado:'Activo'},
-  ],
-
-  ordenes: [
-    {idOrden:1, placa:'AAA101', cliente:'Juan Pérez', mecanico:'Mario Rojas', fechaIngreso:'2025-01-01', fechaEstimada:'2025-01-02', estado:'Cerrada', descripcion:'Cambio aceite'},
-    {idOrden:2, placa:'AAA102', cliente:'Carlos Gómez', mecanico:'Diego Gil', fechaIngreso:'2025-01-03', fechaEstimada:'2025-01-04', estado:'Cerrada', descripcion:'Problema frenos'},
-    {idOrden:3, placa:'AAA103', cliente:'María Rodríguez', mecanico:'Jorge Ruiz', fechaIngreso:'2025-01-05', fechaEstimada:'2025-01-06', estado:'Cerrada', descripcion:'Suspensión dañada'},
-    {idOrden:4, placa:'AAA104', cliente:'Ana Martínez', mecanico:'David Suarez', fechaIngreso:'2025-01-07', fechaEstimada:'2025-01-08', estado:'Cerrada', descripcion:'Diagnóstico general'},
-  ],
-
-  repuestos: [
-    {nombre:'Filtro Aceite', referencia:'REF001', marcaRepuesto:'Bosch', proveedor:'AutoPartes SAS', precioUnitario:25000, stockActual:50, stockMinimo:10},
-    {nombre:'Pastillas Freno', referencia:'REF002', marcaRepuesto:'Valeo', proveedor:'Motor Express', precioUnitario:80000, stockActual:40, stockMinimo:10},
-    {nombre:'Batería', referencia:'REF003', marcaRepuesto:'Denso', proveedor:'Repuestos GT', precioUnitario:300000, stockActual:20, stockMinimo:5},
-    {nombre:'Correa', referencia:'REF004', marcaRepuesto:'ACDelco', proveedor:'Todo Motor', precioUnitario:120000, stockActual:30, stockMinimo:5},
-    {nombre:'Amortiguador', referencia:'REF005', marcaRepuesto:'SKF', proveedor:'AutoCenter', precioUnitario:200000, stockActual:15, stockMinimo:3},
-  ],
-
-  proveedores: [
-    {razonSocial:'AutoPartes SAS', nit:'900000001', ciudad:'Bogotá', telefono:'6011111111', correo:'prov1@gmail.com', tiempoEntregaDias:2, totalRepuestos:1},
-    {razonSocial:'Motor Express', nit:'900000002', ciudad:'Medellín', telefono:'6011111112', correo:'prov2@gmail.com', tiempoEntregaDias:3, totalRepuestos:1},
-    {razonSocial:'Repuestos GT', nit:'900000003', ciudad:'Cali', telefono:'6011111113', correo:'prov3@gmail.com', tiempoEntregaDias:4, totalRepuestos:1},
-  ],
-
-  ordenesEstado: [
-    {nombreEstado:'Cerrada', total:10, porcentaje:100},
-    {nombreEstado:'Abierta', total:0, porcentaje:0},
-    {nombreEstado:'En Proceso', total:0, porcentaje:0},
-    {nombreEstado:'Cancelada', total:0, porcentaje:0},
-  ],
-
-  topMecanicos: [
-    {mecanico:'Mario Rojas', especialidad:'Motor', ordenesAtendidas:1, ingresosGenerados:120000},
-    {mecanico:'Diego Gil', especialidad:'Electricidad', ordenesAtendidas:1, ingresosGenerados:250000},
-    {mecanico:'Jorge Ruiz', especialidad:'Suspensión', ordenesAtendidas:1, ingresosGenerados:180000},
-    {mecanico:'David Suarez', especialidad:'Frenos', ordenesAtendidas:1, ingresosGenerados:60000},
-    {mecanico:'Daniel Acosta', especialidad:'Transmisión', ordenesAtendidas:1, ingresosGenerados:150000},
-  ],
-
-  ingresosMes: [
-    {periodo:'2025-01', totalOrdenes:10, ingresosMes:2260000},
-  ],
-
-  topServicios: [
-    {nombreServicio:'Pintura', vecesSolicitado:1, ingresosGenerados:800000},
-    {nombreServicio:'Cambio Frenos', vecesSolicitado:1, ingresosGenerados:250000},
-    {nombreServicio:'Suspensión', vecesSolicitado:1, ingresosGenerados:180000},
-    {nombreServicio:'Cambio Aceite', vecesSolicitado:1, ingresosGenerados:120000},
-    {nombreServicio:'Alineación', vecesSolicitado:1, ingresosGenerados:80000},
-  ],
-
-  topClientes: [
-    {cliente:'Sofía Castro', telefono:'3001111119', correo:'juan9@gmail.com', totalOrdenes:1, gastoTotal:800000},
-    {cliente:'Carlos Gómez', telefono:'3001111112', correo:'juan2@gmail.com', totalOrdenes:1, gastoTotal:300000},
-    {cliente:'Pedro Torres', telefono:'3001111116', correo:'juan6@gmail.com', totalOrdenes:1, gastoTotal:300000},
-    {cliente:'María Rodríguez', telefono:'3001111113', correo:'juan3@gmail.com', totalOrdenes:1, gastoTotal:180000},
-    {cliente:'Juan Pérez', telefono:'3001111111', correo:'juan1@gmail.com', totalOrdenes:1, gastoTotal:120000},
-  ],
-
-  rendMecanicos: [
-    {mecanico:'Diego Gil', especialidad:'Electricidad', ordenesAtendidas:1, ingresosGenerados:250000, ingresoPromedio:250000, diasPromedioEntrega:1},
-    {mecanico:'Jorge Ruiz', especialidad:'Suspensión', ordenesAtendidas:1, ingresosGenerados:180000, ingresoPromedio:180000, diasPromedioEntrega:1},
-    {mecanico:'Mario Rojas', especialidad:'Motor', ordenesAtendidas:1, ingresosGenerados:120000, ingresoPromedio:120000, diasPromedioEntrega:1},
-    {mecanico:'Óscar Navarro', especialidad:'Alineación', ordenesAtendidas:1, ingresosGenerados:80000, ingresoPromedio:80000, diasPromedioEntrega:1},
-  ],
 };
 
 // ─── FETCH HELPER ─────────────────────────────────────────
@@ -1284,8 +1245,9 @@ function renderClientes(data) {
     <td>${c.telefono}</td>
     <td>${c.correo||'—'}</td>
     <td>${c.fechaRegistro||'—'}</td>
-    <td>
+    <td style="display:flex;gap:6px">
       <button class="btn btn-outline btn-sm" onclick="verCliente(${c.idCliente})">👁</button>
+      <button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="eliminarCliente(${c.idCliente},'${c.nombres} ${c.apellidos}')">🗑</button>
     </td>
   </tr>`).join('');
 }
@@ -1326,6 +1288,17 @@ function verCliente(id) {
   toast(`👤 ${c.nombres} ${c.apellidos} — ${c.telefono}`);
 }
 
+async function eliminarCliente(id, nombre) {
+  if(!confirm(`¿Eliminar al cliente "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  const r = await fetch(BASE + '/clientes/' + id, { method:'DELETE' }).catch(()=>null);
+  if(r && r.ok) { toast('🗑 Cliente eliminado'); cargarClientes(); }
+  else {
+    _clientes = _clientes.filter(x => x.idCliente !== id);
+    renderClientes(_clientes);
+    toast('🗑 Cliente eliminado (modo demo)');
+  }
+}
+
 // ─── VEHÍCULOS ────────────────────────────────────────────
 let _vehiculos = [];
 
@@ -1347,6 +1320,7 @@ function renderVehiculos(data) {
     <td>${v.cilindraje} cc</td>
     <td>${v.combustible||'—'}</td>
     <td>${Number(v.kilometrajeActual).toLocaleString()} km</td>
+    <td><button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="eliminarVehiculo('${v.placa}')">🗑</button></td>
   </tr>`).join('');
 }
 
@@ -1355,6 +1329,17 @@ function filtrarVehiculos() {
   renderVehiculos(_vehiculos.filter(v =>
     v.placa.toLowerCase().includes(q) || v.modelo.toLowerCase().includes(q)
   ));
+}
+
+async function eliminarVehiculo(placa) {
+  if(!confirm(`¿Eliminar el vehículo con placa "${placa}"?`)) return;
+  const r = await fetch(BASE + '/vehiculos/' + placa, { method:'DELETE' }).catch(()=>null);
+  if(r && r.ok) { toast('🗑 Vehículo eliminado'); cargarVehiculos(); }
+  else {
+    _vehiculos = _vehiculos.filter(x => x.placa !== placa);
+    renderVehiculos(_vehiculos);
+    toast('🗑 Vehículo eliminado (modo demo)');
+  }
 }
 
 async function crearVehiculo() {
@@ -1378,8 +1363,11 @@ async function crearVehiculo() {
 }
 
 // ─── MECÁNICOS ────────────────────────────────────────────
+let _mecanicos = [];
+
 async function cargarMecanicos() {
   const data = await api('/mecanicos') || DEMO.mecanicos;
+  _mecanicos = data;
   const tb = document.getElementById('tbMecanicos');
   tb.innerHTML = data.map(m => `<tr>
     <td>${m.idMecanico}</td>
@@ -1389,7 +1377,27 @@ async function cargarMecanicos() {
     <td>${m.telefono}</td>
     <td>${m.fechaIngreso}</td>
     <td>${estadoBadge(m.estado)}</td>
+    <td><button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="eliminarMecanico(${m.idMecanico},'${m.nombres} ${m.apellidos}')">🗑</button></td>
   </tr>`).join('');
+}
+
+async function eliminarMecanico(id, nombre) {
+  if(!confirm(`¿Eliminar al mecánico "${nombre}"?`)) return;
+  const r = await fetch(BASE + '/mecanicos/' + id, { method:'DELETE' }).catch(()=>null);
+  if(r && r.ok) { toast('🗑 Mecánico eliminado'); cargarMecanicos(); }
+  else {
+    _mecanicos = _mecanicos.filter(x => x.idMecanico !== id);
+    const tb = document.getElementById('tbMecanicos');
+    tb.innerHTML = _mecanicos.map(m => `<tr>
+      <td>${m.idMecanico}</td>
+      <td><strong>${m.nombres} ${m.apellidos}</strong></td>
+      <td>${m.tipoDocumento||'CC'} ${m.numeroDocumento}</td>
+      <td>${m.especialidad}</td><td>${m.telefono}</td>
+      <td>${m.fechaIngreso}</td><td>${estadoBadge(m.estado)}</td>
+      <td><button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="eliminarMecanico(${m.idMecanico},'${m.nombres} ${m.apellidos}')">🗑</button></td>
+    </tr>`).join('');
+    toast('🗑 Mecánico eliminado (modo demo)');
+  }
 }
 
 async function crearMecanico() {
@@ -1416,6 +1424,7 @@ async function cargarOrdenes() {
   const data = await api(path) || DEMO.ordenes.filter(o => !filtro || o.estado===filtro);
   const tb = document.getElementById('tbOrdenes');
   if(!data.length) { tb.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Sin órdenes</div></div></td></tr>`; return; }
+  let _ordenes = data;
   tb.innerHTML = data.map(o => `<tr>
     <td>#${o.idOrden}</td>
     <td><strong>${o.placa}</strong></td>
@@ -1424,8 +1433,16 @@ async function cargarOrdenes() {
     <td>${o.fechaIngreso}</td>
     <td>${o.fechaEstimada}</td>
     <td>${estadoBadge(o.estado)}</td>
-    <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.descripcion}</td>
+    <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.descripcion}</td>
+    <td><button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="eliminarOrden(${o.idOrden})">🗑</button></td>
   </tr>`).join('');
+}
+
+async function eliminarOrden(id) {
+  if(!confirm(`¿Eliminar la orden #${id}? Se eliminarán también sus detalles.`)) return;
+  const r = await fetch(BASE + '/ordenes/' + id, { method:'DELETE' }).catch(()=>null);
+  if(r && r.ok) { toast('🗑 Orden eliminada'); cargarOrdenes(); }
+  else { toast('🗑 Orden eliminada (modo demo)'); cargarOrdenes(); }
 }
 
 async function crearOrden() {
@@ -1444,8 +1461,15 @@ async function crearOrden() {
 }
 
 // ─── REPUESTOS ────────────────────────────────────────────
+let _repuestos = [];
+
 async function cargarRepuestos() {
   const data = await api('/inventario/repuestos') || DEMO.repuestos;
+  _repuestos = data;
+  renderRepuestos(data);
+}
+
+function renderRepuestos(data) {
   const tb = document.getElementById('tbRepuestos');
   tb.innerHTML = data.map(r => {
     const critico = r.stockActual <= r.stockMinimo;
@@ -1458,8 +1482,20 @@ async function cargarRepuestos() {
       <td style="color:${critico?'var(--danger)':'var(--success)'};font-weight:700">${r.stockActual}</td>
       <td>${r.stockMinimo}</td>
       <td>${critico ? '<span class="badge badge-danger">⚠ CRÍTICO</span>' : '<span class="badge badge-success">OK</span>'}</td>
+      <td><button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="eliminarRepuesto('${r.referencia}','${r.nombre}')">🗑</button></td>
     </tr>`;
   }).join('');
+}
+
+async function eliminarRepuesto(referencia, nombre) {
+  if(!confirm(`¿Eliminar el repuesto "${nombre}" (${referencia})?`)) return;
+  const r = await fetch(BASE + '/inventario/repuestos/' + encodeURIComponent(referencia), { method:'DELETE' }).catch(()=>null);
+  if(r && r.ok) { toast('🗑 Repuesto eliminado'); cargarRepuestos(); }
+  else {
+    _repuestos = _repuestos.filter(x => x.referencia !== referencia);
+    renderRepuestos(_repuestos);
+    toast('🗑 Repuesto eliminado (modo demo)');
+  }
 }
 
 async function crearRepuesto() {
@@ -1479,8 +1515,15 @@ async function crearRepuesto() {
 }
 
 // ─── PROVEEDORES ──────────────────────────────────────────
+let _proveedores = [];
+
 async function cargarProveedores() {
   const data = await api('/inventario/proveedores') || DEMO.proveedores;
+  _proveedores = data;
+  renderProveedores(data);
+}
+
+function renderProveedores(data) {
   const tb = document.getElementById('tbProveedores');
   tb.innerHTML = data.map(p => `<tr>
     <td><strong>${p.razonSocial}</strong></td>
@@ -1490,7 +1533,19 @@ async function cargarProveedores() {
     <td>${p.correo||'—'}</td>
     <td><span class="badge badge-info">${p.tiempoEntregaDias} días</span></td>
     <td>${p.totalRepuestos||'—'}</td>
+    <td><button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="eliminarProveedor('${p.nit}','${p.razonSocial}')">🗑</button></td>
   </tr>`).join('');
+}
+
+async function eliminarProveedor(nit, nombre) {
+  if(!confirm(`¿Eliminar al proveedor "${nombre}" (NIT: ${nit})?`)) return;
+  const r = await fetch(BASE + '/inventario/proveedores/' + encodeURIComponent(nit), { method:'DELETE' }).catch(()=>null);
+  if(r && r.ok) { toast('🗑 Proveedor eliminado'); cargarProveedores(); }
+  else {
+    _proveedores = _proveedores.filter(x => x.nit !== nit);
+    renderProveedores(_proveedores);
+    toast('🗑 Proveedor eliminado (modo demo)');
+  }
 }
 
 async function crearProveedor() {
@@ -1553,121 +1608,364 @@ async function cargarReportes() {
 
 // ─── CONSULTAS SQL ────────────────────────────────────────
 const SQLS = [
-  { titulo:'Clientes con tipo de documento (INNER JOIN)', desc:'Módulo: Cliente — Lista todos los clientes con su tipo de documento.', sql:`SELECT c.id_cliente, c.nombres, c.apellidos,
-  di.sigla AS tipo_documento,
-  c.numero_documento, c.telefono
+  // MÓDULO CLIENTE
+  { modulo:'Cliente', titulo:'Clientes con tipo de documento (INNER JOIN)', desc:'Lista todos los clientes con su tipo de documento y datos de contacto.', sql:`SELECT c.id_cliente, c.nombres, c.apellidos,
+  di.sigla AS tipo_documento, c.numero_documento,
+  c.telefono, c.correo, c.fecha_registro
 FROM CLIENTE c
-INNER JOIN DOCUMENTO_IDENTIDAD di
-  ON c.id_tipo_documento = di.id_tipo_documento
+INNER JOIN DOCUMENTO_IDENTIDAD di ON c.id_tipo_documento = di.id_tipo_documento
 ORDER BY c.apellidos, c.nombres;` },
-  { titulo:'Clientes SIN vehículo (LEFT JOIN + NULL)', desc:'Módulo: Cliente — Detecta clientes que no tienen vehículos registrados.', sql:`SELECT c.id_cliente, c.nombres, c.apellidos
+  { modulo:'Cliente', titulo:'Buscar cliente por número de documento (WHERE)', desc:'Busca un cliente específico usando su número de documento.', sql:`SELECT c.id_cliente, c.nombres, c.apellidos,
+  di.sigla AS tipo_documento, c.numero_documento, c.telefono, c.correo
+FROM CLIENTE c
+INNER JOIN DOCUMENTO_IDENTIDAD di ON c.id_tipo_documento = di.id_tipo_documento
+WHERE c.numero_documento = '100000001';` },
+  { modulo:'Cliente', titulo:'Clientes CON vehículo registrado (subconsulta)', desc:'Detecta clientes que tienen al menos un vehículo en el sistema.', sql:`SELECT c.id_cliente, c.nombres, c.apellidos, c.telefono, c.correo
+FROM CLIENTE c
+WHERE c.id_cliente IN (
+    SELECT DISTINCT v.id_cliente FROM VEHICULO v
+)
+ORDER BY c.apellidos;` },
+  { modulo:'Cliente', titulo:'Clientes SIN vehículo (LEFT JOIN + NULL)', desc:'Detecta clientes que no tienen vehículos registrados.', sql:`SELECT c.id_cliente, c.nombres, c.apellidos, c.telefono
 FROM CLIENTE c
 LEFT JOIN VEHICULO v ON c.id_cliente = v.id_cliente
-WHERE v.id_vehiculo IS NULL;` },
-  { titulo:'Clientes con mayor número de vehículos (GROUP BY + COUNT)', desc:'Módulo: Cliente — Ranking de clientes por cantidad de vehículos.', sql:`SELECT c.nombres, c.apellidos,
+WHERE v.id_vehiculo IS NULL
+ORDER BY c.apellidos;` },
+  { modulo:'Cliente', titulo:'Cliente con mayor número de vehículos (GROUP BY + COUNT)', desc:'Ranking de clientes por cantidad de vehículos registrados.', sql:`SELECT c.id_cliente, c.nombres, c.apellidos,
   COUNT(v.id_vehiculo) AS total_vehiculos
 FROM CLIENTE c
 LEFT JOIN VEHICULO v ON c.id_cliente = v.id_cliente
 GROUP BY c.id_cliente, c.nombres, c.apellidos
-ORDER BY total_vehiculos DESC;` },
-  { titulo:'Vehículos con datos completos (5 tablas)', desc:'Módulo: Vehículo — JOIN con CLIENTE, MARCA, COLOR, TIPO_COMBUSTIBLE.', sql:`SELECT v.placa,
-  CONCAT(c.nombres,' ',c.apellidos) AS propietario,
-  m.nombre_marca, v.modelo,
-  col.nombre_color, tc.nombre_combustible,
-  v.kilometraje_actual
+ORDER BY total_vehiculos DESC
+LIMIT 1;` },
+  // MÓDULO VEHÍCULO
+  { modulo:'Vehículo', titulo:'Vehículos con datos completos (5 tablas JOIN)', desc:'JOIN con CLIENTE, MARCA, COLOR y TIPO_COMBUSTIBLE.', sql:`SELECT v.id_vehiculo, v.placa,
+  CONCAT(c.nombres, ' ', c.apellidos) AS propietario,
+  m.nombre_marca AS marca, v.modelo,
+  col.nombre_color AS color, v.cilindraje,
+  tc.nombre_combustible AS combustible, v.kilometraje_actual
 FROM VEHICULO v
 INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
 INNER JOIN MARCA m ON v.id_marca = m.id_marca
 INNER JOIN COLOR col ON v.id_color = col.id_color
-INNER JOIN TIPO_COMBUSTIBLE tc
-  ON v.id_tipo_combustible = tc.id_tipo_combustible
+INNER JOIN TIPO_COMBUSTIBLE tc ON v.id_tipo_combustible = tc.id_tipo_combustible
 ORDER BY v.placa;` },
-  { titulo:'Vehículos con más de 50.000 km (WHERE + ORDER BY)', desc:'Módulo: Vehículo — Identifica vehículos con alto kilometraje.', sql:`SELECT v.placa, CONCAT(c.nombres,' ',c.apellidos) AS propietario,
+  { modulo:'Vehículo', titulo:'Buscar vehículo por placa (WHERE)', desc:'Recupera todos los datos de un vehículo por su placa.', sql:`SELECT v.id_vehiculo, v.placa,
+  CONCAT(c.nombres, ' ', c.apellidos) AS propietario,
+  c.telefono, m.nombre_marca AS marca,
+  v.modelo, col.nombre_color AS color, v.kilometraje_actual
+FROM VEHICULO v
+INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+INNER JOIN MARCA m ON v.id_marca = m.id_marca
+INNER JOIN COLOR col ON v.id_color = col.id_color
+WHERE v.placa = 'AAA101';` },
+  { modulo:'Vehículo', titulo:'Vehículos por marca (GROUP BY + COUNT)', desc:'Cuántos vehículos hay registrados por cada marca.', sql:`SELECT m.nombre_marca, COUNT(v.id_vehiculo) AS total_vehiculos
+FROM MARCA m
+LEFT JOIN VEHICULO v ON m.id_marca = v.id_marca
+GROUP BY m.id_marca, m.nombre_marca
+ORDER BY total_vehiculos DESC;` },
+  { modulo:'Vehículo', titulo:'Vehículos con más de 50.000 km (WHERE + ORDER BY)', desc:'Identifica vehículos con alto kilometraje que requieren atención.', sql:`SELECT v.placa, CONCAT(c.nombres, ' ', c.apellidos) AS propietario,
   m.nombre_marca, v.modelo, v.kilometraje_actual
 FROM VEHICULO v
 INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
 INNER JOIN MARCA m ON v.id_marca = m.id_marca
 WHERE v.kilometraje_actual > 50000
 ORDER BY v.kilometraje_actual DESC;` },
-  { titulo:'Mecánico con más órdenes atendidas (GROUP BY + COUNT)', desc:'Módulo: Mecánico — Ranking de mecánicos por productividad.', sql:`SELECT CONCAT(m.nombres,' ',m.apellidos) AS mecanico,
-  e.nombre_especialidad,
-  COUNT(o.id_orden) AS total_ordenes
+  // MÓDULO MECÁNICO
+  { modulo:'Mecánico', titulo:'Mecánicos con especialidad y estado (INNER JOIN)', desc:'Lista completa de mecánicos con especialidad y estado laboral.', sql:`SELECT m.id_mecanico, m.nombres, m.apellidos,
+  di.sigla AS tipo_documento, m.numero_documento,
+  e.nombre_especialidad AS especialidad,
+  m.telefono, m.fecha_ingreso, em.nombre_estado AS estado
+FROM MECANICO m
+INNER JOIN DOCUMENTO_IDENTIDAD di ON m.id_tipo_documento = di.id_tipo_documento
+INNER JOIN ESPECIALIDAD e ON m.id_especialidad = e.id_especialidad
+INNER JOIN ESTADO_MECANICO em ON m.id_estado_mecanico = em.id_estado_mecanico
+ORDER BY m.apellidos;` },
+  { modulo:'Mecánico', titulo:'Mecánicos activos disponibles (WHERE)', desc:'Filtra solo mecánicos con estado Activo para asignación de órdenes.', sql:`SELECT m.id_mecanico, m.nombres, m.apellidos,
+  e.nombre_especialidad AS especialidad, m.telefono
+FROM MECANICO m
+INNER JOIN ESPECIALIDAD e ON m.id_especialidad = e.id_especialidad
+INNER JOIN ESTADO_MECANICO em ON m.id_estado_mecanico = em.id_estado_mecanico
+WHERE em.nombre_estado = 'Activo'
+ORDER BY e.nombre_especialidad, m.apellidos;` },
+  { modulo:'Mecánico', titulo:'Mecánico con más órdenes atendidas (GROUP BY + COUNT)', desc:'Ranking de mecánicos por número de órdenes completadas.', sql:`SELECT m.id_mecanico,
+  CONCAT(m.nombres, ' ', m.apellidos) AS mecanico,
+  e.nombre_especialidad, COUNT(o.id_orden) AS total_ordenes
 FROM MECANICO m
 INNER JOIN ESPECIALIDAD e ON m.id_especialidad = e.id_especialidad
 LEFT JOIN ORDEN_TRABAJO o ON m.id_mecanico = o.id_mecanico
 GROUP BY m.id_mecanico, m.nombres, m.apellidos, e.nombre_especialidad
 ORDER BY total_ordenes DESC;` },
-  { titulo:'Total facturado por orden (GROUP BY + SUM)', desc:'Módulo: Orden — Suma servicios y repuestos por cada orden de trabajo.', sql:`SELECT ot.id_orden, v.placa,
-  CONCAT(c.nombres,' ',c.apellidos) AS cliente,
-  SUM(d.cantidad * d.precio_aplicado) AS total_orden
+  { modulo:'Mecánico', titulo:'Mecánicos sin órdenes asignadas (LEFT JOIN + NULL)', desc:'Identifica mecánicos que aún no tienen ninguna orden.', sql:`SELECT m.id_mecanico,
+  CONCAT(m.nombres, ' ', m.apellidos) AS mecanico,
+  e.nombre_especialidad
+FROM MECANICO m
+INNER JOIN ESPECIALIDAD e ON m.id_especialidad = e.id_especialidad
+LEFT JOIN ORDEN_TRABAJO o ON m.id_mecanico = o.id_mecanico
+WHERE o.id_orden IS NULL;` },
+  // MÓDULO ORDEN DE TRABAJO
+  { modulo:'Orden', titulo:'Listar órdenes con datos completos (5 tablas)', desc:'Vista completa de órdenes con vehículo, cliente, mecánico y estado.', sql:`SELECT ot.id_orden, ot.fecha_ingreso,
+  ot.fecha_estimada_entrega, ot.fecha_real_entrega,
+  v.placa, m.nombre_marca AS marca_vehiculo, veh.modelo,
+  CONCAT(c.nombres, ' ', c.apellidos) AS cliente,
+  CONCAT(mec.nombres, ' ', mec.apellidos) AS mecanico,
+  eo.nombre_estado AS estado, ot.descripcion_falla
+FROM ORDEN_TRABAJO ot
+INNER JOIN VEHICULO v ON ot.id_vehiculo = v.id_vehiculo
+INNER JOIN MARCA m ON v.id_marca = m.id_marca
+INNER JOIN VEHICULO veh ON ot.id_vehiculo = veh.id_vehiculo
+INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+INNER JOIN MECANICO mec ON ot.id_mecanico = mec.id_mecanico
+INNER JOIN ESTADO_ORDEN eo ON ot.id_estado_orden = eo.id_estado_orden
+ORDER BY ot.fecha_ingreso DESC;` },
+  { modulo:'Orden', titulo:'Órdenes abiertas o en proceso (WHERE + IN)', desc:'Filtra órdenes activas pendientes de completar.', sql:`SELECT ot.id_orden, v.placa,
+  CONCAT(c.nombres, ' ', c.apellidos) AS cliente,
+  CONCAT(mec.nombres, ' ', mec.apellidos) AS mecanico,
+  ot.fecha_ingreso, ot.fecha_estimada_entrega, eo.nombre_estado
+FROM ORDEN_TRABAJO ot
+INNER JOIN VEHICULO v ON ot.id_vehiculo = v.id_vehiculo
+INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+INNER JOIN MECANICO mec ON ot.id_mecanico = mec.id_mecanico
+INNER JOIN ESTADO_ORDEN eo ON ot.id_estado_orden = eo.id_estado_orden
+WHERE eo.nombre_estado IN ('Abierta', 'En Proceso')
+ORDER BY ot.fecha_ingreso;` },
+  { modulo:'Orden', titulo:'Detalle de una orden (servicios y repuestos)', desc:'Desglosa todos los ítems (servicios y repuestos) de una orden específica.', sql:`SELECT ot.id_orden, v.placa,
+  CASE WHEN d.id_servicio IS NOT NULL THEN 'Servicio' ELSE 'Repuesto' END AS tipo_item,
+  COALESCE(s.nombre_servicio, r.nombre) AS descripcion_item,
+  d.cantidad, d.precio_aplicado,
+  (d.cantidad * d.precio_aplicado) AS subtotal, d.observacion
+FROM DETALLE_ORDEN d
+INNER JOIN ORDEN_TRABAJO ot ON d.id_orden = ot.id_orden
+INNER JOIN VEHICULO v ON ot.id_vehiculo = v.id_vehiculo
+LEFT JOIN SERVICIO s ON d.id_servicio = s.id_servicio
+LEFT JOIN REPUESTO r ON d.id_repuesto = r.id_repuesto
+WHERE ot.id_orden = 1;` },
+  { modulo:'Orden', titulo:'Total facturado por orden (GROUP BY + SUM)', desc:'Suma total de servicios y repuestos por cada orden de trabajo.', sql:`SELECT ot.id_orden, v.placa,
+  CONCAT(c.nombres, ' ', c.apellidos) AS cliente,
+  ot.fecha_ingreso, SUM(d.cantidad * d.precio_aplicado) AS total_orden
 FROM ORDEN_TRABAJO ot
 INNER JOIN VEHICULO v ON ot.id_vehiculo = v.id_vehiculo
 INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
 INNER JOIN DETALLE_ORDEN d ON ot.id_orden = d.id_orden
-GROUP BY ot.id_orden, v.placa, c.nombres, c.apellidos
+GROUP BY ot.id_orden, v.placa, c.nombres, c.apellidos, ot.fecha_ingreso
 ORDER BY total_orden DESC;` },
-  { titulo:'Repuestos con stock crítico (WHERE)', desc:'Módulo: Inventario — Detecta repuestos por debajo del mínimo.', sql:`SELECT r.nombre, r.referencia,
-  r.stock_actual, r.stock_minimo,
+  // MÓDULO INVENTARIO
+  { modulo:'Inventario', titulo:'Repuestos con proveedor y marca (3 tablas)', desc:'Vista completa del inventario con estado de stock.', sql:`SELECT r.id_repuesto, r.nombre, r.referencia,
+  mr.nombre_marca AS marca_repuesto,
   p.razon_social AS proveedor,
-  p.tiempo_entrega_dias
+  r.precio_unitario, r.stock_actual, r.stock_minimo,
+  CASE WHEN r.stock_actual <= r.stock_minimo THEN 'REORDENAR' ELSE 'OK' END AS estado_stock
+FROM REPUESTO r
+INNER JOIN PROVEEDOR p ON r.id_proveedor = p.id_proveedor
+INNER JOIN MARCA_REPUESTO mr ON r.id_marca_repuesto = mr.id_marca_repuesto
+ORDER BY r.nombre;` },
+  { modulo:'Inventario', titulo:'Repuestos con stock crítico (WHERE)', desc:'Detecta repuestos que están por debajo del stock mínimo permitido.', sql:`SELECT r.nombre, r.referencia, r.stock_actual, r.stock_minimo,
+  p.razon_social AS proveedor, p.telefono, p.tiempo_entrega_dias
 FROM REPUESTO r
 INNER JOIN PROVEEDOR p ON r.id_proveedor = p.id_proveedor
 WHERE r.stock_actual <= r.stock_minimo
 ORDER BY r.stock_actual ASC;` },
-  { titulo:'Resumen general del sistema (subconsultas escalares)', desc:'Módulo: Reportes — KPIs principales en una sola consulta.', sql:`SELECT
+  { modulo:'Inventario', titulo:'Repuesto más usado en órdenes (GROUP BY + COUNT)', desc:'Ranking de repuestos más solicitados con valor total generado.', sql:`SELECT r.nombre AS repuesto, r.referencia,
+  COUNT(d.id_detalle) AS veces_usado,
+  SUM(d.cantidad) AS unidades_total,
+  SUM(d.cantidad * d.precio_aplicado) AS valor_total
+FROM REPUESTO r
+INNER JOIN DETALLE_ORDEN d ON r.id_repuesto = d.id_repuesto
+GROUP BY r.id_repuesto, r.nombre, r.referencia
+ORDER BY veces_usado DESC;` },
+  { modulo:'Inventario', titulo:'Proveedores con conteo de repuestos (GROUP BY + LEFT JOIN)', desc:'Incluye proveedores sin repuestos asignados.', sql:`SELECT p.razon_social, p.nit, ci.nombre_ciudad AS ciudad,
+  p.tiempo_entrega_dias, COUNT(r.id_repuesto) AS total_repuestos
+FROM PROVEEDOR p
+INNER JOIN CIUDAD ci ON p.id_ciudad = ci.id_ciudad
+LEFT JOIN REPUESTO r ON p.id_proveedor = r.id_proveedor
+GROUP BY p.id_proveedor, p.razon_social, p.nit, ci.nombre_ciudad, p.tiempo_entrega_dias
+ORDER BY total_repuestos DESC;` },
+  // MÓDULO REPORTES
+  { modulo:'Reportes', titulo:'Resumen general del sistema (subconsultas escalares)', desc:'KPIs principales del taller en una sola consulta.', sql:`SELECT
   (SELECT COUNT(*) FROM CLIENTE) AS total_clientes,
   (SELECT COUNT(*) FROM VEHICULO) AS total_vehiculos,
-  (SELECT COUNT(*) FROM MECANICO WHERE id_estado_mecanico=1) AS mecanicos_activos,
+  (SELECT COUNT(*) FROM MECANICO WHERE id_estado_mecanico = 1) AS mecanicos_activos,
   (SELECT COUNT(*) FROM ORDEN_TRABAJO WHERE id_estado_orden IN (1,2)) AS ordenes_activas,
-  (SELECT COALESCE(SUM(d.cantidad*d.precio_aplicado),0)
-   FROM DETALLE_ORDEN d
-   JOIN ORDEN_TRABAJO o ON d.id_orden=o.id_orden
-   WHERE o.id_estado_orden=3) AS ingresos_totales,
-  (SELECT COUNT(*) FROM REPUESTO WHERE stock_actual<=stock_minimo) AS stock_critico;` },
-  { titulo:'Órdenes que superan el promedio (HAVING + subconsulta)', desc:'Módulo: Reportes — Filtra órdenes por encima del promedio de facturación.', sql:`SELECT ot.id_orden, v.placa,
-  CONCAT(c.nombres,' ',c.apellidos) AS cliente,
-  SUM(d.cantidad * d.precio_aplicado) AS total_orden
-FROM ORDEN_TRABAJO ot
-INNER JOIN VEHICULO v ON ot.id_vehiculo = v.id_vehiculo
-INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
-INNER JOIN DETALLE_ORDEN d ON ot.id_orden = d.id_orden
-GROUP BY ot.id_orden, v.placa, c.nombres, c.apellidos
-HAVING SUM(d.cantidad*d.precio_aplicado) > (
-  SELECT AVG(sub_total) FROM (
-    SELECT SUM(d2.cantidad*d2.precio_aplicado) AS sub_total
-    FROM DETALLE_ORDEN d2 GROUP BY d2.id_orden) AS p
-)
-ORDER BY total_orden DESC;` },
-  { titulo:'Ingresos por mes (GROUP BY + SUM + ORDER BY)', desc:'Módulo: Reportes — Evolución mensual de ingresos.', sql:`SELECT DATE_FORMAT(ot.fecha_ingreso,'%Y-%m') AS periodo,
+  (SELECT COUNT(*) FROM ORDEN_TRABAJO WHERE id_estado_orden = 3) AS ordenes_cerradas,
+  (SELECT COALESCE(SUM(d.cantidad * d.precio_aplicado),0)
+   FROM DETALLE_ORDEN d INNER JOIN ORDEN_TRABAJO o ON d.id_orden = o.id_orden
+   WHERE o.id_estado_orden = 3) AS ingresos_totales,
+  (SELECT COUNT(*) FROM REPUESTO WHERE stock_actual <= stock_minimo) AS repuestos_criticos;` },
+  { modulo:'Reportes', titulo:'Ingresos por mes (GROUP BY + SUM + ORDER BY)', desc:'Evolución mensual de ingresos de órdenes cerradas.', sql:`SELECT YEAR(ot.fecha_ingreso) AS anio,
+  MONTH(ot.fecha_ingreso) AS mes,
+  DATE_FORMAT(ot.fecha_ingreso, '%Y-%m') AS periodo,
   COUNT(DISTINCT ot.id_orden) AS total_ordenes,
   SUM(d.cantidad * d.precio_aplicado) AS ingresos_mes
 FROM ORDEN_TRABAJO ot
 INNER JOIN DETALLE_ORDEN d ON ot.id_orden = d.id_orden
 WHERE ot.id_estado_orden = 3
-GROUP BY DATE_FORMAT(ot.fecha_ingreso,'%Y-%m')
-ORDER BY periodo;` },
-  { titulo:'Clientes con mayor gasto (GROUP BY + SUM)', desc:'Módulo: Reportes — Ranking de clientes por facturación total.', sql:`SELECT CONCAT(c.nombres,' ',c.apellidos) AS cliente,
+GROUP BY YEAR(ot.fecha_ingreso), MONTH(ot.fecha_ingreso), DATE_FORMAT(ot.fecha_ingreso, '%Y-%m')
+ORDER BY anio, mes;` },
+  { modulo:'Reportes', titulo:'Servicios más solicitados (GROUP BY + COUNT + HAVING)', desc:'Ranking de servicios por demanda e ingresos generados.', sql:`SELECT s.nombre_servicio, s.precio_base,
+  COUNT(d.id_detalle) AS veces_solicitado,
+  SUM(d.cantidad * d.precio_aplicado) AS ingresos_generados
+FROM SERVICIO s
+INNER JOIN DETALLE_ORDEN d ON s.id_servicio = d.id_servicio
+GROUP BY s.id_servicio, s.nombre_servicio, s.precio_base
+HAVING COUNT(d.id_detalle) >= 1
+ORDER BY veces_solicitado DESC;` },
+  { modulo:'Reportes', titulo:'Mecánico con mayores ingresos generados (GROUP BY + SUM)', desc:'Rendimiento económico de cada mecánico.', sql:`SELECT CONCAT(mec.nombres, ' ', mec.apellidos) AS mecanico,
+  e.nombre_especialidad,
+  COUNT(DISTINCT ot.id_orden) AS ordenes_atendidas,
+  SUM(d.cantidad * d.precio_aplicado) AS ingresos_generados,
+  AVG(d.cantidad * d.precio_aplicado) AS ingreso_promedio_por_item
+FROM MECANICO mec
+INNER JOIN ESPECIALIDAD e ON mec.id_especialidad = e.id_especialidad
+INNER JOIN ORDEN_TRABAJO ot ON mec.id_mecanico = ot.id_mecanico
+INNER JOIN DETALLE_ORDEN d ON ot.id_orden = d.id_orden
+GROUP BY mec.id_mecanico, mec.nombres, mec.apellidos, e.nombre_especialidad
+ORDER BY ingresos_generados DESC;` },
+  { modulo:'Reportes', titulo:'Clientes con mayor gasto total (GROUP BY + SUM + ORDER BY)', desc:'Ranking de clientes más valiosos por gasto acumulado.', sql:`SELECT CONCAT(c.nombres, ' ', c.apellidos) AS cliente,
+  c.telefono, c.correo,
   COUNT(DISTINCT ot.id_orden) AS total_ordenes,
   SUM(d.cantidad * d.precio_aplicado) AS gasto_total
 FROM CLIENTE c
 INNER JOIN VEHICULO v ON c.id_cliente = v.id_cliente
 INNER JOIN ORDEN_TRABAJO ot ON v.id_vehiculo = ot.id_vehiculo
 INNER JOIN DETALLE_ORDEN d ON ot.id_orden = d.id_orden
-GROUP BY c.id_cliente, c.nombres, c.apellidos
+GROUP BY c.id_cliente, c.nombres, c.apellidos, c.telefono, c.correo
 ORDER BY gasto_total DESC;` },
+  { modulo:'Reportes', titulo:'Órdenes que superan el promedio (HAVING + subconsulta)', desc:'Filtra órdenes cuyo total supera el promedio general de facturación.', sql:`SELECT ot.id_orden, v.placa,
+  CONCAT(c.nombres, ' ', c.apellidos) AS cliente,
+  SUM(d.cantidad * d.precio_aplicado) AS total_orden
+FROM ORDEN_TRABAJO ot
+INNER JOIN VEHICULO v ON ot.id_vehiculo = v.id_vehiculo
+INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+INNER JOIN DETALLE_ORDEN d ON ot.id_orden = d.id_orden
+GROUP BY ot.id_orden, v.placa, c.nombres, c.apellidos
+HAVING SUM(d.cantidad * d.precio_aplicado) > (
+    SELECT AVG(sub_total) FROM (
+        SELECT SUM(d2.cantidad * d2.precio_aplicado) AS sub_total
+        FROM DETALLE_ORDEN d2 GROUP BY d2.id_orden
+    ) AS promedios
+)
+ORDER BY total_orden DESC;` },
+  { modulo:'Reportes', titulo:'Tiempo promedio de entrega por mecánico (AVG + DATEDIFF)', desc:'Métricas de eficiencia: días promedio, mínimo y máximo por mecánico.', sql:`SELECT CONCAT(mec.nombres, ' ', mec.apellidos) AS mecanico,
+  COUNT(ot.id_orden) AS ordenes_cerradas,
+  AVG(DATEDIFF(ot.fecha_real_entrega, ot.fecha_ingreso)) AS dias_promedio_entrega,
+  MIN(DATEDIFF(ot.fecha_real_entrega, ot.fecha_ingreso)) AS min_dias,
+  MAX(DATEDIFF(ot.fecha_real_entrega, ot.fecha_ingreso)) AS max_dias
+FROM MECANICO mec
+INNER JOIN ORDEN_TRABAJO ot ON mec.id_mecanico = ot.id_mecanico
+WHERE ot.id_estado_orden = 3 AND ot.fecha_real_entrega IS NOT NULL
+GROUP BY mec.id_mecanico, mec.nombres, mec.apellidos
+ORDER BY dias_promedio_entrega ASC;` },
+  { modulo:'Reportes', titulo:'Historial completo de un vehículo por placa', desc:'Todo el historial de servicios y repuestos de un vehículo específico.', sql:`SELECT v.placa, CONCAT(c.nombres, ' ', c.apellidos) AS propietario,
+  ot.id_orden, ot.fecha_ingreso, ot.fecha_real_entrega,
+  eo.nombre_estado AS estado,
+  CASE WHEN d.id_servicio IS NOT NULL THEN 'Servicio' ELSE 'Repuesto' END AS tipo,
+  COALESCE(s.nombre_servicio, r.nombre) AS item,
+  d.cantidad, d.precio_aplicado,
+  (d.cantidad * d.precio_aplicado) AS subtotal
+FROM VEHICULO v
+INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente
+INNER JOIN ORDEN_TRABAJO ot ON v.id_vehiculo = ot.id_vehiculo
+INNER JOIN ESTADO_ORDEN eo ON ot.id_estado_orden = eo.id_estado_orden
+INNER JOIN DETALLE_ORDEN d ON ot.id_orden = d.id_orden
+LEFT JOIN SERVICIO s ON d.id_servicio = s.id_servicio
+LEFT JOIN REPUESTO r ON d.id_repuesto = r.id_repuesto
+WHERE v.placa = 'AAA101'
+ORDER BY ot.fecha_ingreso DESC, d.id_detalle;` },
+  { modulo:'Reportes', titulo:'Órdenes por estado con porcentaje (GROUP BY + COUNT)', desc:'Distribución porcentual de órdenes según su estado.', sql:`SELECT eo.nombre_estado, COUNT(ot.id_orden) AS total,
+  ROUND(COUNT(ot.id_orden) * 100.0 / (SELECT COUNT(*) FROM ORDEN_TRABAJO), 2) AS porcentaje
+FROM ESTADO_ORDEN eo
+LEFT JOIN ORDEN_TRABAJO ot ON eo.id_estado_orden = ot.id_estado_orden
+GROUP BY eo.id_estado_orden, eo.nombre_estado
+ORDER BY total DESC;` },
 ];
 
+// Filter/search state for consultas
+let sqlFiltroModulo = 'Todos';
+
 function cargarConsultas() {
-  document.getElementById('sqlList').innerHTML = SQLS.map((q,i) => `
+  const modulos = ['Todos', ...new Set(SQLS.map(q => q.modulo))];
+  const filterBar = document.getElementById('sqlFilterBar');
+  if (filterBar && !filterBar.dataset.built) {
+    filterBar.innerHTML = modulos.map(m => 
+      `<button class="btn btn-sm ${m===sqlFiltroModulo?'btn-primary':'btn-outline'}" onclick="filtrarSQL('${m}')">${m}</button>`
+    ).join('');
+    filterBar.dataset.built = '1';
+  }
+  renderSQL();
+}
+
+function filtrarSQL(modulo) {
+  sqlFiltroModulo = modulo;
+  document.querySelectorAll('#sqlFilterBar button').forEach(b => {
+    b.className = 'btn btn-sm ' + (b.textContent === modulo ? 'btn-primary' : 'btn-outline');
+  });
+  renderSQL();
+}
+
+function renderSQL() {
+  const filtered = sqlFiltroModulo === 'Todos' ? SQLS : SQLS.filter(q => q.modulo === sqlFiltroModulo);
+  document.getElementById('sqlList').innerHTML = filtered.map((q,i) => `
     <div style="margin-bottom:20px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-        <span style="background:var(--accent);color:#000;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">Q${i+1}</span>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:var(--accent);color:#000;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">Q${SQLS.indexOf(q)+1}</span>
+        <span style="background:var(--surface2);color:var(--info);font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border)">${q.modulo}</span>
         <strong style="font-size:14px">${q.titulo}</strong>
       </div>
       <p style="color:var(--muted);font-size:12px;margin-bottom:8px">${q.desc}</p>
       <div class="code-block">${q.sql}</div>
     </div>
   `).join('');
+}
+
+// ─── HISTORIAL VEHÍCULO ──────────────────────────────────
+async function buscarHistorialPlaca() {
+  const placa = document.getElementById('histPlaca').value.trim().toUpperCase();
+  if (!placa) { toast('Ingresa una placa', 'error'); return; }
+  const data = await api('/vehiculos/' + placa + '/historial');
+  const tb = document.getElementById('tbHistorial');
+  const result = document.getElementById('historialResult');
+  result.style.display = 'block';
+  if (!data || !data.length) {
+    tb.innerHTML = `<tr><td colspan="11"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Sin resultados para "${placa}" — verifique la placa o conéctese al backend.</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = data.map(r => `<tr>
+    <td><code>${r.placa}</code></td>
+    <td>${r.propietario}</td>
+    <td>${r.idOrden}</td>
+    <td>${r.fechaIngreso}</td>
+    <td>${r.fechaRealEntrega||'—'}</td>
+    <td>${estadoBadge(r.estado)}</td>
+    <td><span class="badge ${r.tipo==='Servicio'?'badge-info':'badge-warning'}">${r.tipo}</span></td>
+    <td>${r.item}</td>
+    <td>${r.cantidad}</td>
+    <td>${fmt(r.precioAplicado)}</td>
+    <td style="color:var(--accent);font-weight:700">${fmt(r.subtotal)}</td>
+  </tr>`).join('');
+}
+
+// ─── DETALLE ORDEN ────────────────────────────────────────
+async function buscarDetalleOrden() {
+  const id = document.getElementById('detalleOrdenId').value.trim();
+  if (!id) { toast('Ingresa un ID de orden', 'error'); return; }
+  const data = await api('/ordenes/' + id + '/detalle');
+  const tb = document.getElementById('tbDetalleOrden');
+  const result = document.getElementById('detalleOrdenResult');
+  result.style.display = 'block';
+  if (!data || !data.length) {
+    tb.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">📄</div><div class="empty-text">Sin detalle para la orden #${id} — verifique el ID o conéctese al backend.</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = data.map(r => `<tr>
+    <td>${r.idOrden}</td>
+    <td><code>${r.placa}</code></td>
+    <td><span class="badge ${r.tipoItem==='Servicio'?'badge-info':'badge-warning'}">${r.tipoItem}</span></td>
+    <td>${r.descripcionItem}</td>
+    <td>${r.cantidad}</td>
+    <td>${fmt(r.precioAplicado)}</td>
+    <td style="color:var(--accent);font-weight:700">${fmt(r.subtotal)}</td>
+    <td>${r.observacion||'—'}</td>
+  </tr>`).join('');
 }
 
 // ─── INIT ─────────────────────────────────────────────────

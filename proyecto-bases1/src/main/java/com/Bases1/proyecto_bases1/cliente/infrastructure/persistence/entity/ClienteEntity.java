@@ -17,7 +17,7 @@ public class ClienteEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
-    private Integer idCliente;
+    private Long idCliente;
 
     @Column(name = "nombres")
     private String nombres;
@@ -29,7 +29,7 @@ public class ClienteEntity {
     private String numeroDocumento;
 
     @Column(name = "id_tipo_documento")
-    private Integer idTipoDocumento;
+    private Long idTipoDocumento;
 
     @Column(name = "telefono")
     private String telefono;

@@ -1,26 +1,82 @@
 package com.Bases1.proyecto_bases1.cliente.application.service;
 
-
+import com.Bases1.proyecto_bases1.cliente.application.dto.ClienteActividadResponse;
+import com.Bases1.proyecto_bases1.cliente.application.dto.ClienteDocumentoResponse;
+import com.Bases1.proyecto_bases1.cliente.application.dto.ClienteVehiculosResponse;
+import com.Bases1.proyecto_bases1.cliente.application.dto.CrearClienteRequest;
 import com.Bases1.proyecto_bases1.cliente.domain.model.Cliente;
+import com.Bases1.proyecto_bases1.cliente.domain.repository.ClienteRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
-
 @Service
-public interface ClienteService {
+@RequiredArgsConstructor
+public class ClienteService {
 
-    Cliente crear(Cliente cliente);
+    private final ClienteRepository clienteRepository;
 
-    Cliente obtener(Long id);
+    // CRUD
 
-    List<Cliente> listar();
+    public Cliente guardar(CrearClienteRequest request) {
 
-    Cliente actualizar(Long id, Cliente cliente);
+        Cliente cliente = Cliente.builder()
+                .nombres(request.nombres())
+                .apellidos(request.apellidos())
+                .idTipoDocumento(Long.valueOf(request.idTipoDocumento()))
+                .numeroDocumento(request.numeroDocumento())
+                .telefono(request.telefono())
+                .correo(request.correo())
+                .direccion(request.direccion())
+                .fechaRegistro(LocalDate.now())
+                .build();
 
-    void eliminar(Long id);
+        return clienteRepository.guardar(cliente);
+    }
 
-    List<Cliente> obtenerClientesSinVehiculo();
+    public List<Cliente> listarTodos() {
+        return clienteRepository.listarTodos();
+    }
 
-    Cliente obtenerClienteMasActivo();
+    public Cliente buscarPorId(Long id) {
+        return clienteRepository.buscarPorId(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Cliente no encontrado"));
+    }
+
+    public void eliminar(Long id) {
+        clienteRepository.eliminar(id);
+    }
+
+    // CONSULTAS SQL
+
+    public List<ClienteDocumentoResponse> listarClientes() {
+        return clienteRepository.listarClientesConDocumento();
+    }
+
+    public ClienteDocumentoResponse buscarPorDocumento(String documento) {
+
+        return clienteRepository
+                .buscarPorDocumento(documento)
+                .orElseThrow(() ->
+                        new RuntimeException("Cliente no encontrado"));
+    }
+
+    public List<ClienteVehiculosResponse> clientesConVehiculos() {
+        return clienteRepository.clientesConVehiculos();
+    }
+
+    public List<ClienteVehiculosResponse> clientesSinVehiculos() {
+        return clienteRepository.clientesSinVehiculos();
+    }
+
+    public ClienteActividadResponse clienteConMasVehiculos() {
+
+        return clienteRepository
+                .clienteConMasVehiculos()
+                .orElseThrow(() ->
+                        new RuntimeException("No existen registros"));
+    }
 }
